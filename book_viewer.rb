@@ -30,20 +30,50 @@ get "/chapters/:number" do
   erb(:chapter)
 end
 
-get "/search" do
-  @results = []
-  phrase = params[:query] ||= ""
+# Calls the block for each chapter, passing that chapter's number, name, and
+# contents.
+def each_chapter
+  @contents.each_with_index do |name, number|
+    number += 1
+    # binding.pry
+    contents = File.read("data/chp#{number}.txt")
+    yield number, name, contents
+  end
+end
 
-  (1..@contents.size ).to_a.each_with_index do |n, index|
-    chapter = File.read("data/chp#{n}.txt")
-     if chapter.include?(phrase) && phrase != ""
-       @results << @contents[index]
-     end
+# This method returns an Array of Hashes representing chapters that match the
+# specified query. Each Hash contain values for its :name and :number keys.
+def chapters_matching(query)
+  results = []
+
+  return results if !query || query.empty?
+
+  each_chapter do |number, name, contents|
+    results << {number: number, name: name} if contents.include?(query)
   end
 
-  @results
-  erb(:search)
+  results
 end
+
+get "/search" do
+  @results = chapters_matching(params[:query])
+  erb :search
+end
+
+# get "/search" do
+#   @results = []
+#   phrase = params[:query] ||= ""
+#
+#   (1..@contents.size ).to_a.each_with_index do |n, index|
+#     chapter = File.read("data/chp#{n}.txt")
+#      if chapter.include?(phrase) && phrase != ""
+#        @results << @contents[index]
+#      end
+#   end
+#
+#   @results
+#   erb(:search)
+# end
 
 not_found do
   redirect "/"
