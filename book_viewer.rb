@@ -9,7 +9,7 @@ end
 
 helpers do
   def in_paragraphs(chap_content)
-    chap_content.split("\n\n").map { |line| "<p>#{line}</p>" }.join 
+    chap_content.split("\n\n").map { |line| "<p>#{line}</p>" }.join
 
   end
 end
@@ -23,12 +23,13 @@ get "/chapters/:number" do
   number = params[:number].to_i
   chapter_name = @contents[number - 1]
   @chapter = File.read("data/chp#{number}.txt")
+  redirect "/" unless (1..@contents.size).cover? number
   # binding.pry
   @title = "Chapter #{number}: #{chapter_name}"
   # binding.pry
   erb(:chapter)
 end
 
-get "/show/:name" do
-  params[:name]
+not_found do
+  redirect "/"
 end
