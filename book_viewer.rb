@@ -30,6 +30,21 @@ get "/chapters/:number" do
   erb(:chapter)
 end
 
+get "/search" do
+  @results = []
+  phrase = params[:query] ||= ""
+
+  (1..@contents.size ).to_a.each_with_index do |n, index|
+    chapter = File.read("data/chp#{n}.txt")
+     if chapter.include?(phrase) && phrase != ""
+       @results << @contents[index]
+     end
+  end
+
+  @results
+  erb(:search)
+end
+
 not_found do
   redirect "/"
 end
